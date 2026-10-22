@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>中国方向延迟告警</title>
+    <link rel="stylesheet" href="./admin.css?v=0.3.9" />
+  </head>
+  <body>
+    <main class="shell">
+      <header class="hero">
+        <div>
+          <p class="eyebrow">KOMARI PLUGIN</p>
+          <h1>中国方向延迟告警</h1>
+          <p class="subtitle">服务器在线，但连续无法获取多个国内目标延迟时，通过独立 Telegram Bot 通知。</p>
+        </div>
+        <label class="switch-row">
+          <input id="enabled" type="checkbox" />
+          <span class="switch"></span>
+          <span>启用监控</span>
+        </label>
+      </header>
+
+      <div id="notice" class="notice hidden"></div>
+
+      <section class="grid two">
+        <article class="card">
+          <div class="card-heading">
+            <div>
+              <span class="step">01</span>
+              <h2>Telegram</h2>
+            </div>
+            <div class="actions compact">
+              <button id="setupTelegramMenu" class="button ghost" type="button">同步菜单</button>
+              <button id="testTelegram" class="button secondary" type="button">发送测试</button>
+            </div>
+          </div>
+          <label>
+            <span>Bot Token</span>
+            <input id="botToken" type="password" autocomplete="new-password" placeholder="123456789:AA..." />
+            <small id="tokenHint">Token 只保存在 Komari 插件数据目录中。</small>
+            <small id="telegramPollStatus"></small>
+            <small id="telegramMenuStatus"></small>
+          </label>
+          <div class="field-row">
+            <label>
+              <span>Chat ID</span>
+              <input id="chatId" type="text" placeholder="例如 123456789 或 -100..." />
+            </label>
+            <label>
+              <span>Topic ID（可选）</span>
+              <input id="messageThreadId" type="text" inputmode="numeric" placeholder="论坛话题 ID" />
+            </label>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-heading">
+            <div>
+              <span class="step">02</span>
+              <h2>判定规则</h2>
+            </div>
+          </div>
+          <div class="field-row four">
+            <label>
+              <span>失败目标数</span>
+              <input id="minimumFailedTargets" type="number" min="1" max="100" value="5" />
+            </label>
+            <label>
+              <span>连续异常次数</span>
+              <input id="failureCycles" type="number" min="1" max="30" value="3" />
+            </label>
+            <label>
+              <span>连续恢复次数</span>
+              <input id="recoveryCycles" type="number" min="1" max="30" value="2" />
+            </label>
+            <label>
+              <span>检测间隔（秒）</span>
+              <input id="checkIntervalSeconds" type="number" min="30" max="3600" value="60" />
+            </label>
+          </div>
+          <label>
+            <span>结果过期时间（秒）</span>
+            <input id="staleAfterSeconds" type="number" min="30" max="3600" value="150" />
+            <small>超过此时间没有新延迟数据，也视为无法获取延迟。建议设置为检测间隔的 2～3 倍。</small>
+          </label>
+        </article>
+      </section>
+
+      <section class="grid two">
+        <article class="card selection-card">
+          <div class="card-heading">
+            <div>
+              <span class="step">03</span>
+              <h2>监控服务器</h2>
+            </div>
+            <span id="clientCount" class="count">0 已选</span>
+          </div>
+          <div class="filter-row">
+            <input id="clientSearch" type="search" placeholder="搜索名称、UUID、标签、分组或 IP" autocomplete="off" />
+            <button id="clearClientSearch" class="button ghost" type="button">清除</button>
+          </div>
+          <div class="filter-toolbar">
+            <div id="clientFilterResult" class="filter-result"></div>
+            <div class="actions compact">
+              <button id="selectVisibleClients" class="button secondary" type="button">全选结果</button>
+              <button id="unselectVisibleClients" class="button ghost" type="button">取消选择</button>
+            </div>
+          </div>
+          <div id="clientList" class="check-list loading">正在读取服务器…</div>
+        </article>
+
+        <article class="card selection-card">
+          <div class="card-heading">
+            <div>
+              <span class="step">04</span>
+              <h2>国内延迟任务</h2>
+            </div>
+            <span id="taskCount" class="count">0 已选</span>
+          </div>
+          <div id="taskList" class="check-list loading">正在读取延迟任务…</div>
+        </article>
+      </section>
+
+      <section class="card status-card">
+        <div class="card-heading">
+          <div>
+            <span class="step">05</span>
+            <h2>当前状态</h2>
+          </div>
+          <div class="actions compact">
+            <button id="runNow" class="button secondary" type="button">立即检测</button>
+            <button id="refresh" class="button ghost" type="button">刷新</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <p class="table-hint">拖动左侧 ↕ 调整节点顺序，保存后 Telegram 检测和通知将按此顺序处理。</p>
+          <table>
+            <thead>
+              <tr>
+                <th>排序</th>
+                <th>服务器</th>
+                <th>状态</th>
+                <th>失败目标</th>
+                <th>连续异常</th>
+                <th>最后正常</th>
+                <th>异常持续</th>
+                <th>最后检测</th>
+                <th>通知</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="statusBody">
+              <tr><td colspan="10" class="empty">尚无检测记录</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <footer class="toolbar">
+        <p>Telegram 命令：/check · /status · /alerts · /help</p>
+        <button id="save" class="button primary" type="button">保存设置</button>
+      </footer>
+    </main>
+
+    <script src="./admin.js?v=0.3.9"></script>
+  </body>
+</html>
