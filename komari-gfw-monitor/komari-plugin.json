@@ -1,0 +1,33 @@
+{
+  "name": {
+    "zh_CN": "中国方向延迟告警",
+    "en": "China Route Latency Alert"
+  },
+  "short": "gfw-monitor",
+  "description": {
+    "zh_CN": "监控在线服务器是否连续无法获取多个中国大陆目标的延迟，并通过独立 Telegram Bot 告警。",
+    "en": "Alerts through a dedicated Telegram bot when an online server repeatedly loses latency measurements to multiple mainland China targets."
+  },
+  "author": "Codex",
+  "version": "0.3.9",
+  "komari": ">=1.5.1",
+  "entry": "script.js",
+  "permissions": {
+    "node": true,
+    "allowSystemRPC": true,
+    "allowRoutes": true,
+    "timeout": 30,
+    "maxHTTPBodyBytes": 1048576
+  },
+  "pages": [
+    {
+      "file": "pages/admin.html",
+      "title": {
+        "zh_CN": "中国方向告警",
+        "en": "China Route Alert"
+      },
+      "type": "iframe",
+      "visibility": "admin"
+    }
+  ]
+}
